@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>MyStudySpace — Dashboard</title>
+
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    /* MATCH LOGIN BACKGROUND */
+    --bg: linear-gradient(135deg,#a2c2e4,#fce3d3);
+    --card:#ffffff;
+    --muted:#6b7280;
+    --text:#0f1724;
+    --accent:#3b82f6;
+    --accent-2:#2563eb;
+    --glass: rgba(255,255,255,0.6);
+    --shadow: 0 8px 30px rgba(2,6,23,0.06);
+    --radius:12px;
+    --panel-gap:20px;
+
+    /* element tokens */
+    --input-border: #e6eefb;
+    --task-bg: linear-gradient(180deg,#fff,#fbfdff);
+    --task-border: #eef6ff;
+    --music-track-bg: #e6eefb;
+  }
+
+  /* DARK THEME TOKENS */
+  body.dark {
+    --bg: linear-gradient(135deg,#1b2430,#0b1220);
+    --card:#0f1724;
+    --muted:#9aa4b2;
+    --text:#e6eef8;
+    --accent:#60a5fa;
+    --accent-2:#3b82f6;
+    --glass: rgba(255,255,255,0.03);
+    --shadow: 0 12px 40px rgba(2,6,23,0.6);
+
+    --input-border: rgba(255,255,255,0.06);
+    --task-bg: linear-gradient(180deg,#0b1220,#111827);
+    --task-border: rgba(255,255,255,0.03);
+    --music-track-bg: rgba(255,255,255,0.04);
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    min-height:100vh;
+    background:var(--bg);
+    color:var(--text);
+    font-family: Roboto, system-ui, -apple-system, "Segoe UI", "Helvetica Neue", Arial;
+    -webkit-font-smoothing:antialiased;
+    display:flex;
+    flex-direction:column;
+  }
+
+  header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:18px 20px;
+    gap:12px;
+  }
+  .brand{ display:flex; flex-direction:column; }
+  .brand h1{ font-family:Inter, sans-serif; font-size:20px; margin:0; }
+  .brand p{ margin:4px 0 0 0; color:var(--muted); font-size:13px; }
+
+  .header-right{ display:flex; gap:12px; align-items:center; }
+
+  .switch {
+    width:44px; height:26px; background:#e6eefb; border-radius:999px; padding:3px; display:inline-flex; align-items:center; cursor:pointer;
+  }
+  .switch .knob { width:20px; height:20px; background:white; border-radius:50%; transition:transform .25s ease; box-shadow:0 3px 8px rgba(2,6,23,0.12); }
+  body.dark .switch { background:#1f2937; }
+  body.dark .switch .knob { transform:translateX(18px); }
+
+  .avatar{
+    width:44px;height:44px;border-radius:50%;background:var(--glass);display:inline-grid;place-items:center;cursor:pointer;
+    box-shadow: var(--shadow);
+  }
+
+  /* music bar */
+  .music-bar{
+    margin: 0 auto 18px auto;
+    width: calc(100% - 40px);
+    max-width:1100px;
+    background:var(--card);
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:8px 12px;
+    box-shadow:var(--shadow);
+    transition:background .25s ease, box-shadow .25s ease;
+  }
+  .music-controls{ display:flex; gap:8px; align-items:center; }
+  .music-controls button{
+    border:0; background:transparent; cursor:pointer; padding:6px; border-radius:8px;
+    display:inline-flex; align-items:center; justify-content:center;
+  }
+  .music-controls button:hover{ background: rgba(0,0,0,0.04); }
+  .music-meta{ flex:1; display:flex; flex-direction:column; gap:2px; }
+  .music-title{ font-weight:500; font-size:14px; color:var(--text); }
+  .music-sub{ color:var(--muted); font-size:12px; }
+  .music-progress{ width:260px; height:6px; background:var(--music-track-bg); border-radius:6px; overflow:hidden; }
+  .music-progress > span{ display:block; height:100%; width:24%; background:linear-gradient(90deg,var(--accent),var(--accent-2)); transition:width .3s ease; }
+
+  main.container{
+    width:100%;
+    max-width:1100px;
+    margin:0 auto;
+    padding:0 20px 40px;
+    display:grid;
+    grid-template-columns: 1fr 360px;
+    gap:var(--panel-gap);
+    align-items:start;
+    box-sizing:border-box;
+  }
+
+  .card{
+    background:var(--card);
+    border-radius:var(--radius);
+    padding:16px;
+    box-shadow:var(--shadow);
+    transition:transform .18s ease, box-shadow .18s ease;
+  }
+  .card:hover{ transform:translateY(-4px); }
+
+  .todo { min-height:320px; display:flex; flex-direction:column; gap:12px; }
+  .todo h2{ margin:0; font-family:Inter, sans-serif; font-size:18px; color:var(--text); }
+  .task-input{ display:flex; gap:8px; }
+  input, select, button { font-family: Roboto, sans-serif; }
+  .task-input input{ flex:1; padding:10px; border-radius:8px; border:1px solid var(--input-border); background:transparent; color:var(--text); }
+  .task-list{ display:flex; flex-direction:column; gap:8px; max-height:360px; overflow:auto; padding-right:6px; }
+
+  /* task card (was inline styled previously) */
+  .task{
+    display:flex; justify-content:space-between; align-items:center; padding:10px; border-radius:8px;
+    background: var(--task-bg);
+    border:1px solid var(--task-border);
+    color:var(--text);
+  }
+  .task .left{ display:flex; align-items:center; gap:12px; }
+  .task .checkbox{ width:18px; height:18px; border-radius:6px; border:2px solid rgba(59,130,246,0.18); display:inline-grid; place-items:center; cursor:pointer; color:var(--accent-2); }
+  .task.completed { opacity:.7; text-decoration:line-through; }
+
+  .timers{ display:flex; gap:14px; align-items:stretch; margin-top:12px; flex-wrap:wrap; }
+  .timer {
+    flex:1;
+    display:flex; flex-direction:column; align-items:center; gap:10px;
+    padding:14px; border-radius:10px; background:var(--task-bg); border:1px solid var(--task-border);
+  }
+  .timer .time-display{ font-family:Inter, sans-serif; font-size:28px; font-weight:700; color:var(--text); }
+
+  .resources { min-height:160px; display:flex; flex-direction:column; gap:10px; color:var(--text); }
+  .slots { margin-top:12px; display:flex; flex-direction:column; gap:10px; }
+
+  .slot-form{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .slot-form select, .slot-form input[type="time"]{ padding:8px; border-radius:8px; border:1px solid var(--input-border); background:transparent; color:var(--text); }
+
+  .slot-list{ display:flex; flex-direction:column; gap:8px; max-height:320px; overflow:auto; padding-right:6px; }
+
+  /* slot item style (used instead of inline bg) */
+  .slot-item{
+    padding:8px;
+    border-radius:8px;
+    background:var(--card);
+    border:1px solid var(--task-border);
+    color:var(--text);
+  }
+
+  .profile-panel{
+    position:fixed; top:0; right:-420px; width:420px; height:100vh; padding:18px; box-shadow:-16px 0 40px rgba(2,6,23,0.2);
+    background: var(--card); transition:right .36s cubic-bezier(.2,.9,.2,1); z-index:90;
+    display:flex; flex-direction:column; gap:12px;
+  }
+  .profile-panel.open{ right:0; }
+  .profile-panel h3{ font-family:Inter, sans-serif; margin:0; color:var(--text); }
+  .profile-field{ display:flex; gap:10px; align-items:center; padding:10px; border-radius:10px; background:var(--card); border:1px solid var(--task-border); }
+  .profile-field svg{ width:18px; height:18px; stroke:var(--muted); }
+  .profile-field input, .profile-field select{ border:0; outline:none; font-size:14px; background:transparent; color:var(--text); flex:1; }
+
+  .profile-logout{ margin-top:auto; background:#111827; color:#fff; border:0; padding:12px 14px; border-radius:10px; cursor:pointer; font-weight:600; }
+
+  @media (max-width:980px){
+    main.container{ grid-template-columns: 1fr; padding:0 14px; }
+    .music-progress{ width:160px; }
+    .profile-panel{ width:100%; right:-100%; }
+    .profile-panel.open{ right:0; }
+  }
+
+  .fade-up { animation: fadeUp .48s ease both; }
+  @keyframes fadeUp { from{ opacity:0; transform:translateY(8px); } to{ opacity:1; transform:none; } }
+</style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <h1>Welcome back</h1>
+      <p>Focused. Minimal. Productive.</p>
+    </div>
+
+    <div class="header-right">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <label style="font-size:13px;color:var(--muted);">Dark mode</label>
+        <div class="switch" id="darkSwitch" title="Toggle dark mode"><div class="knob"></div></div>
+      </div>
+
+      <button class="progress-btn" id="viewProgressBtn" title="View progress">Progress</button>
+
+      <div class="avatar" id="openProfile" title="Open profile"></div>
+    </div>
+  </header>
+
+  <div class="music-bar fade-up" role="region" aria-label="Music player">
+    <div class="music-controls">
+      <button id="prevBtn" aria-label="Previous">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="17 16 8 9 17 2 17 16"/><line x1="6" y1="18" x2="6" y2="0"/></svg>
+      </button>
+      <button id="playPauseBtn" aria-label="Play/pause">
+        <svg id="playIcon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="#111827" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      </button>
+      <button id="nextBtn" aria-label="Next">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="2 16 11 9 2 2 2 16"/><line x1="13" y1="18" x2="13" y2="0"/></svg>
+      </button>
+    </div>
+
+    <div class="music-meta">
+      <div class="music-title" id="trackTitle">No track selected</div>
+      <div class="music-sub">Add playlist in code where indicated</div>
+    </div>
+
+    <div class="music-progress" aria-hidden="true"><span id="musicFill" style="width:24%"></span></div>
+  </div>
+
+  <main class="container">
+    <div style="display:flex;flex-direction:column;gap:18px;">
+      <section class="card todo fade-up">
+        <h2>To-Do</h2>
+        <div class="task-input">
+          <input id="taskText" placeholder="e.g. Math: Practice exercise 3" aria-label="New task">
+          <button id="addTask" style="background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#fff;border:0;padding:10px 12px;border-radius:8px;cursor:pointer;">Add</button>
+        </div>
+
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input id="filterTasks" placeholder="Filter tasks..." style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--input-border)">
+          <button id="clearTasks" style="padding:8px 10px;border-radius:8px;border:1px solid var(--input-border);background:transparent;cursor:pointer;">Clear</button>
+        </div>
+
+        <div class="task-list" id="taskList" aria-live="polite"></div>
+      </section>
+
+      <section class="card fade-up">
+        <h2 style="margin:0 0 8px 0;font-family:Inter, sans-serif;">Timers</h2>
+        <div class="timers">
+          <div class="timer">
+            <div style="font-size:13px;color:var(--muted)">Focus</div>
+            <div class="time-display" id="focusDisplay">25:00</div>
+
+            <div style="display:flex;gap:8px;" class="timer-controls">
+              <button id="startFocus" style="background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#fff;border:0;padding:8px 12px;border-radius:8px;cursor:pointer;">Start</button>
+              <button id="pauseFocus" style="padding:8px 12px;border-radius:8px;border:1px solid var(--input-border);background:transparent;cursor:pointer;">Pause</button>
+              <button id="resetFocus" style="padding:8px 12px;border-radius:8px;border:1px solid var(--input-border);background:transparent;cursor:pointer;">Reset</button>
+            </div>
+
+            <div style="margin-top:8px;display:flex;gap:8px;align-items:center;">
+              <label style="color:var(--muted); font-size:13px;">Duration (min)</label>
+              <input id="focusMinutes" type="number" min="1" value="25" style="width:80px;padding:6px;border-radius:8px;border:1px solid var(--input-border);">
+            </div>
+          </div>
+
+          <div class="timer">
+            <div style="font-size:13px;color:var(--muted)">Break</div>
+            <div class="time-display" id="breakDisplay">05:00</div>
+
+            <div style="display:flex;gap:8px;" class="timer-controls">
+              <button id="startBreak" style="background:transparent;border:1px solid var(--input-border);padding:8px 12px;border-radius:8px;cursor:pointer;color:var(--accent);">Start 5m</button>
+              <button id="resetBreak" style="padding:8px 12px;border-radius:8px;border:1px solid var(--input-border);background:transparent;cursor:pointer;">Reset</button>
+            </div>
+            <div style="margin-top:6px;color:var(--muted);font-size:13px;">Use break to relax — 5 minutes by default.</div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <aside style="display:flex;flex-direction:column;gap:18px;">
+      <section class="card resources fade-up">
+        <h3 style="margin:0 0 6px 0;font-family:Inter, sans-serif;">Study Resources</h3>
+        <p style="color:var(--muted);margin:0 0 8px 0;">Resources will be shown here based on your selected subjects (add them in code later).</p>
+        <div id="resourcePlaceholder" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+      </section>
+
+      <section class="card slots fade-up">
+        <h3 style="margin:0 0 6px 0;font-family:Inter, sans-serif;">Study Slots</h3>
+        <div class="slot-form">
+          <select id="slotSubject">
+            <option value="">Subject</option>
+            <option>Maths</option><option>Physics</option><option>Chemistry</option><option>Biology</option><option>SST</option><option>English</option>
+          </select>
+          <input type="time" id="slotFrom">
+          <input type="time" id="slotTo">
+          <button id="addSlot" style="background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#fff;border:0;padding:8px 12px;border-radius:8px;cursor:pointer;">Add</button>
+        </div>
+
+        <div class="slot-list" id="slotList" aria-live="polite"></div>
+
+        <div style="margin-top:10px;display:flex;gap:8px;">
+          <button id="loadProfileSubjects" style="padding:8px;border-radius:8px;border:1px solid var(--input-border);background:transparent;cursor:pointer;">Load profile subjects</button>
+          <button id="clearSlots" style="padding:8px;border-radius:8px;border:1px solid var(--input-border);background:transparent;cursor:pointer;">Clear slots</button>
+        </div>
+      </section>
+    </aside>
+  </main>
+
+  <aside class="profile-panel" id="profilePanel" aria-hidden="true">
+    <h3>Profile</h3>
+
+    <div class="profile-field">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <input id="pfFullName" placeholder="Full name">
+    </div>
+
+    <div class="profile-field">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><polyline points="22,6 12,13 2,6"/></svg>
+      <input id="pfEmail" placeholder="Email">
+    </div>
+
+    <div class="profile-field">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <input id="pfUsername" placeholder="Username">
+    </div>
+
+    <div class="profile-field">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+      <select id="pfClass">
+        <option value="">Class</option><option>10th</option><option>11th</option><option>12th</option>
+      </select>
+    </div>
+
+    <div class="profile-field">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21v-2a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v2"/></svg>
+      <input id="pfSchool" placeholder="School name">
+    </div>
+
+    <div style="display:flex;gap:8px;">
+      <button id="saveProfile" style="flex:1;padding:10px;border-radius:8px;border:0;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#fff;cursor:pointer;">Save</button>
+      <button id="closeProfile" style="padding:10px;border-radius:8px;border:1px solid var(--input-border);background:transparent;cursor:pointer;">Close</button>
+    </div>
+
+    <button class="profile-logout" id="panelLogout">Logout</button>
+  </aside>
+
+  <footer style="margin-top:auto;padding:18px;text-align:center;color:var(--muted);font-size:13px;">© 2025 MyStudySpace — Stay focused</footer>
+
+<script>
+/* Dark mode persistence and UI sync */
+const body = document.body;
+const darkSwitch = document.getElementById('darkSwitch');
+const savedTheme = localStorage.getItem('mss_theme');
+if (savedTheme === 'dark') {
+  body.classList.add('dark');
+  // move knob visually
+  const knob = darkSwitch.querySelector('.knob');
+  if (knob) knob.style.transform = 'translateX(18px)';
+}
+darkSwitch.addEventListener('click', () => {
+  const knob = darkSwitch.querySelector('.knob');
+  body.classList.toggle('dark');
+  const isDark = body.classList.contains('dark');
+  if (knob) knob.style.transform = isDark ? 'translateX(18px)' : 'translateX(0)';
+  localStorage.setItem('mss_theme', isDark ? 'dark' : 'light');
+});
+
+/* Profile panel handlers */
+const profilePanel = document.getElementById('profilePanel');
+document.getElementById('openProfile').addEventListener('click', openProfile);
+document.getElementById('closeProfile').addEventListener('click', closeProfile);
+document.getElementById('saveProfile').addEventListener('click', saveProfile);
+document.getElementById('panelLogout').addEventListener('click', ()=>{ localStorage.clear(); location.href='login-page.html'; });
+function openProfile(){
+  profilePanel.classList.add('open');
+  document.getElementById('pfFullName').value = localStorage.getItem('mss_fullname') || '';
+  document.getElementById('pfEmail').value = localStorage.getItem('mss_email') || localStorage.getItem('email') || '';
+  document.getElementById('pfUsername').value = localStorage.getItem('username') || '';
+  document.getElementById('pfClass').value = localStorage.getItem('userClass') || '';
+  document.getElementById('pfSchool').value = localStorage.getItem('school') || '';
+}
+function closeProfile(){ profilePanel.classList.remove('open'); }
+function saveProfile(){
+  localStorage.setItem('mss_fullname', document.getElementById('pfFullName').value);
+  localStorage.setItem('mss_email', document.getElementById('pfEmail').value);
+  localStorage.setItem('username', document.getElementById('pfUsername').value);
+  localStorage.setItem('userClass', document.getElementById('pfClass').value);
+  localStorage.setItem('school', document.getElementById('pfSchool').value);
+  alert('Profile saved'); closeProfile();
+}
+
+/* Tasks */
+const taskListEl = document.getElementById('taskList');
+function loadTasks(){
+  const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+  renderTaskList(tasks);
+}
+function renderTaskList(tasks){
+  taskListEl.innerHTML = '';
+  tasks.forEach((t, i) => {
+    const el = document.createElement('div');
+    el.className = 'task' + (t.done ? ' completed' : '');
+    // left + delete button
+    el.innerHTML = <div class="left"><div class="checkbox">${t.done ? '✓' : ''}</div><div><div style="font-weight:600">${escapeHtml(t.text)}</div><div style="font-size:12px;color:var(--muted)">${escapeHtml(t.note||'')}</div></div></div><div><button data-index="${i}" aria-label="Delete" class="task-delete">✕</button></div>;
+    // toggle completion
+    el.querySelector('.left').addEventListener('click', ()=>{
+      tasks[i].done = !tasks[i].done;
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+      renderTaskList(tasks);
+    });
+    // delete
+    el.querySelector('button.task-delete').addEventListener('click', (e)=>{
+      e.stopPropagation();
+      tasks.splice(i,1);
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+      renderTaskList(tasks);
+    });
+    taskListEl.appendChild(el);
+  });
+}
+document.getElementById('addTask').addEventListener('click', ()=>{
+  const txt = document.getElementById('taskText').value.trim();
+  if(!txt) return;
+  const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+  tasks.push({ text: txt, done: false, note: '' });
+  localStorage.setItem('tasks', JSON.stringify(tasks));
+  document.getElementById('taskText').value = '';
+  loadTasks();
+});
+document.getElementById('clearTasks').addEventListener('click', ()=>{
+  if(confirm('Clear all tasks?')) { localStorage.removeItem('tasks'); loadTasks(); }
+});
+document.getElementById('filterTasks').addEventListener('input', (e)=>{
+  const q = e.target.value.toLowerCase();
+  const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+  if(!q) { renderTaskList(tasks); return; }
+  renderTaskList(tasks.filter(t => t.text.toLowerCase().includes(q)));
+});
+
+/* Slots */
+const slotListEl = document.getElementById('slotList');
+function renderSlots(){
+  const slots = JSON.parse(localStorage.getItem('studySchedule') || '[]');
+  slotListEl.innerHTML = '';
+  if(!slots.length){ slotListEl.innerHTML = '<div style="color:var(--muted)">No study slots yet</div>'; return; }
+  slots.forEach((s, i)=>{
+    const d = document.createElement('div'); d.className = 'slot-item';
+    d.innerHTML = <div style="display:flex;justify-content:space-between;align-items:center"><div><strong>${escapeHtml(s.subject)}</strong><div style="font-size:13px;color:var(--muted)">${escapeHtml(s.from)} → ${escapeHtml(s.to)}</div></div><div><button data-i="${i}" class="slot-delete">Delete</button></div></div>;
+    d.querySelector('button.slot-delete').style.cssText = 'border:0;background:none;cursor:pointer;color:var(--muted)';
+    d.querySelector('button.slot-delete').addEventListener('click', ()=>{
+      slots.splice(i,1);
+      localStorage.setItem('studySchedule', JSON.stringify(slots));
+      renderSlots();
+    });
+    slotListEl.appendChild(d);
+  });
+}
+document.getElementById('addSlot').addEventListener('click', ()=>{
+  const subject = document.getElementById('slotSubject').value;
+  const from = document.getElementById('slotFrom').value;
+  const to = document.getElementById('slotTo').value;
+  if(!subject || !from || !to) return alert('Please fill subject and times');
+  const slots = JSON.parse(localStorage.getItem('studySchedule') || '[]');
+  slots.push({ subject, from, to });
+  localStorage.setItem('studySchedule', JSON.stringify(slots));
+  renderSlots();
+});
+document.getElementById('clearSlots').addEventListener('click', ()=>{ if(confirm('Clear all slots?')){ localStorage.removeItem('studySchedule'); renderSlots(); }});
+document.getElementById('loadProfileSubjects').addEventListener('click', ()=>{ const subs = JSON.parse(localStorage.getItem('userSubjects')||'[]'); if(!subs.length) return alert('No subjects in profile. Open profile and select them.'); document.getElementById('slotSubject').value = subs[0]; });
+
+/* Timers */
+let focusSeconds = (parseInt(document.getElementById('focusMinutes').value)||25)*60;
+let focusInterval = null;
+let breakSeconds = 5*60;
+let breakInterval = null;
+const focusDisplay = document.getElementById('focusDisplay');
+const breakDisplay = document.getElementById('breakDisplay');
+function formatTime(s){ const m = Math.floor(s/60); const sec = s%60; return ${m}:${sec<10? '0':''}${sec}; }
+function updateDisplays(){ focusDisplay.textContent = formatTime(focusSeconds); breakDisplay.textContent = formatTime(breakSeconds); }
+
+document.getElementById('startFocus').addEventListener('click', ()=>{
+  const mins = parseInt(document.getElementById('focusMinutes').value) || 25;
+  if(!focusInterval){ focusSeconds = mins*60; focusInterval = setInterval(()=>{ if(focusSeconds>0){ focusSeconds--; updateDisplays(); } else { clearInterval(focusInterval); focusInterval=null; alert('Focus session finished'); } },1000); }
+});
+document.getElementById('pauseFocus').addEventListener('click', ()=>{ if(focusInterval){ clearInterval(focusInterval); focusInterval=null; }});
+document.getElementById('resetFocus').addEventListener('click', ()=>{ if(focusInterval){ clearInterval(focusInterval); focusInterval=null; } focusSeconds = (parseInt(document.getElementById('focusMinutes').value)||25)*60; updateDisplays(); });
+
+document.getElementById('startBreak').addEventListener('click', ()=>{
+  if(!breakInterval){ breakSeconds = 5*60; breakInterval = setInterval(()=>{ if(breakSeconds>0){ breakSeconds--; updateDisplays(); } else { clearInterval(breakInterval); breakInterval=null; alert('Break finished'); } },1000); }
+});
+document.getElementById('resetBreak').addEventListener('click', ()=>{ if(breakInterval){ clearInterval(breakInterval); breakInterval=null; } breakSeconds = 5*60; updateDisplays(); });
+
+updateDisplays();
+
+/* Music placeholder */
+let isPlaying = false;
+const playBtn = document.getElementById('playPauseBtn');
+const playIcon = document.getElementById('playIcon');
+playBtn.addEventListener('click', ()=>{
+  isPlaying = !isPlaying;
+  playIcon.innerHTML = isPlaying ? '<rect x="6" y="4" width="4" height="16" fill="#111827"></rect><rect x="14" y="4" width="4" height="16" fill="#111827"></rect>' : '<polygon points="5 3 19 12 5 21 5 3" fill="#111827"></polygon>';
+  document.getElementById('trackTitle').textContent = isPlaying ? 'Playing — Demo Track' : 'Paused';
+});
+
+/* Navigation to progress */
+document.getElementById('viewProgressBtn').addEventListener('click', ()=> location.href='progress.html');
+
+/* Startup init */
+(function init(){
+  if(!localStorage.getItem('tasks')) localStorage.setItem('tasks', JSON.stringify([]));
+  if(!localStorage.getItem('studySchedule')) localStorage.setItem('studySchedule', JSON.stringify([]));
+  loadTasks();
+  renderSlots();
+  const name = localStorage.getItem('mss_fullname') || localStorage.getItem('username') || 'Profile';
+  document.getElementById('openProfile').title = name;
+})();
+
+/* small util to escape inserted text (prevent accidental HTML injection) */
+function escapeHtml(s){
+  return (s+'').replace(/[&<>"']/g, function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; });
+}
+</script>
+</body>
+</html>
