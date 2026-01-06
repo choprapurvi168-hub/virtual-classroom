@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyStudySpace Login</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&900family=Montserrat:wght@600&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: #739EC9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .login-container {
+            background-color: #FFE8DB;
+            border-radius: 18px;
+            padding: 32px;
+            padding-top: 15px;
+            padding-right: 40px;
+            height: 54vh;
+            width: 320px;
+            color: rgb(0, 0, 0);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        p#formTitle {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        label {
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        input,
+        select,
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 8px;
+            margin-bottom: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        input,
+        select {
+            background: #fffcfc;
+            color: #000;
+        }
+
+        .login-button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding-left: 10px;
+        }
+
+        button {
+            background-color: #5682B1;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #4a73a3;
+        }
+
+        .toggle {
+            text-align: center;
+            font-size: 14px;
+            color: #000;
+            margin-top: 10px;
+        }
+
+        .toggle a {
+            color: #000;
+            font-weight: 600;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-container">
+        <p id="formTitle">Sign in to MyStudySpace</p>
+        <form id="userForm" onsubmit="handleSubmit(event)">
+            <label for="name">Name</label>
+            <input type="text" id="name" placeholder="Enter your username" required>
+
+            <label for="email">Email ID</label>
+            <input type="email" id="email" placeholder="Enter your email" required>
+
+            <label for="password">Password</label>
+            <input type="password" id="pswd" placeholder="Enter your password" required>
+
+            <div class="login-button">
+                <button type="submit">Login / Sign Up</button>
+            </div>
+        </form>
+        <div class="toggle">
+            This is your personalised study space - your progress is saved and tracked locally!
+        </div>
+    </div>
+
+    <script>
+        function handleSubmit(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('password').value;
+
+            // store locally
+            localStorage.setItem("username", name);
+            localStorage.setItem("email", email);
+            localStorage.setItem("password", pswd);
+
+            document.getElementById("login-button").onclick = function () {
+                window.location.href = "mainpage.html";
+            }
+        // go to dashboard
+        // window.location.href = "mainpage.html";
+        // }
+    </script>
+</body>
+
+</html>
